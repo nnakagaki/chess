@@ -1,5 +1,10 @@
 class Board
+  attr_reader :grid
 
+  PIECE_ORDER = [
+    Rook, Knight, Bishop, Queen,
+    King, Bishop, Knight, Rook
+  ]
 
   def self.make_board
     Array.new(8) { Array.new(8) }
@@ -7,19 +12,55 @@ class Board
 
   def initialize
     @grid = Board.make_board
+    add_pieces
+  end
+
+  private
+  def add_pieces
+    grid.each_with_index do |row, index|
+      color = [0, 1].include?(index) ? :black : :white
+
+      if [0, 7].include?(index)
+        set_back_row(row, index, color)
+      elsif [1, 6].include?(index)
+        set_pawn_row(row, index, color)
+      end
+    end
+  end
+
+  def set_back_row(row, row_index, color)
+    8.times do |index|
+      pos = [row_index, index]
+      row[index] = PIECE_ORDER[index].new(pos, self, color)
+    end
+  end
+
+  def set_pawn_row(row, row_index, color)
+    8.times do |index|
+      pos = [row_index, index]
+      row[index] = Pawn.new(pos, self, color)
+    end
   end
 
 end
 
 class Piece
-  attr_reader :pos
+  attr_reader :pos, :color
 
   def initialize(pos, board, color)
-    @pos, @board = pos, board
+    @pos, @board, @color = pos, board, color
   end
 
   def take_move
 
+  end
+
+  def inspect
+    {
+      class: self.class,
+      pos: pos,
+      color: color
+    }.inspect
   end
 end
 
