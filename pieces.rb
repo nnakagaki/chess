@@ -1,8 +1,8 @@
 class Piece
-  attr_reader :pos, :color
+  attr_reader :color
 
-  def initialize(pos, board, color)
-    @pos, @board, @color = pos, board, color
+  def initialize(board, color)
+    @board, @color = board, color
   end
 
   def take_move
@@ -12,9 +12,13 @@ class Piece
   def inspect
     {
       class: self.class,
-      pos: pos,
       color: color
     }.inspect
+  end
+
+  protected
+  def pos
+
   end
 
   private
@@ -54,23 +58,29 @@ class Pawn < Piece
   def moves
     moves = []
 
-    blocked = false
-    deltas.each do |move, delta|
+    deltas.each do |move_type, delta|
       new_pos = new_pos(delta)
-      # puts "#{pos} with #{delta} gives #{new_pos}"
-
-      case move
-      when :standard
-        next blocked = true if board[new_pos]
-      when :opening
-        next if blocked || board[new_pos] || pos[0] != pawn_row
-      else
-        next unless board[new_pos] && board[new_pos].color != self.color
-      end
-
-      moves << new_pos
+      moves << new_pos if valid_move?(move_type, new_pos)
     end
+
     moves
+  end
+
+  def valid_move?(move_type, pos)
+    case move_type
+    when :standard
+      return false if board[pos]
+    when :opening
+      return false if board[pos]
+      return false if self.pos[0] != pawn_row
+
+      standard_pos = new_pos(deltas[:standard])
+      return false if valid_move?(:standard, standard_pos)
+    else
+      return false unless board[pos] && board[pos].color != self.color
+    end
+
+    true
   end
 
   def deltas

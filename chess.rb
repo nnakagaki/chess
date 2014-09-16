@@ -37,15 +37,13 @@ class Board
 
   def set_back_row(row, row_index, color)
     8.times do |index|
-      pos = [row_index, index]
-      row[index] = PIECE_ORDER[index].new(pos, self, color)
+      row[index] = PIECE_ORDER[index].new(self, color)
     end
   end
 
   def set_pawn_row(row, row_index, color)
     8.times do |index|
-      pos = [row_index, index]
-      row[index] = Pawn.new(pos, self, color)
+      row[index] = Pawn.new(self, color)
     end
   end
 
