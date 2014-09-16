@@ -17,7 +17,7 @@ class Piece
     }.inspect
   end
 
-
+  private
   attr_reader :board
 
   def valid_move?(pos)
@@ -30,6 +30,56 @@ class Piece
     true
   end
 
+  def new_pos(dir, mag = 1)
+    i, j = pos
+    delta_i, delta_j = dir[0] * mag, dir[1] * mag
+    [i + delta_i, j + delta_j]
+  end
+end
+
+class Pawn < Piece
+  BLACK_DELTAS = {
+    standard: [1, 0],
+    opening: [2, 0],
+    taking_left: [1, -1],
+    taking_right: [1, 1]
+  }
+  WHITE_DELTAS = {
+    standard: [-1, 0],
+    opening: [-2, 0],
+    taking_left: [-1, -1],
+    taking_right: [-1, 1]
+  }
+
+  def moves
+    moves = []
+
+    blocked = false
+    deltas.each do |move, delta|
+      new_pos = new_pos(delta)
+      # puts "#{pos} with #{delta} gives #{new_pos}"
+
+      case move
+      when :standard
+        next blocked = true if board[new_pos]
+      when :opening
+        next if blocked || board[new_pos] || pos[0] != pawn_row
+      else
+        next unless board[new_pos] && board[new_pos].color != self.color
+      end
+
+      moves << new_pos
+    end
+    moves
+  end
+
+  def deltas
+    color == :white ? WHITE_DELTAS : BLACK_DELTAS
+  end
+
+  def pawn_row
+    color == :white ? 6 : 1
+  end
 
 end
 
@@ -37,12 +87,10 @@ class SlidingPiece < Piece
   def moves
     moves = []
 
-    i, j = pos
     self.directions.each do |dir|
       8.times do |mag|
         next if mag.zero?
-        delta_i, delta_j = dir[0] * mag, dir[1] * mag
-        new_pos = [i + delta_i, j + delta_j]
+        new_pos = new_pos(dir, mag)
 
         if valid_move?(new_pos)
           moves << new_pos
@@ -89,9 +137,8 @@ class SteppingPiece < Piece
   def moves
     moves = []
 
-    i, j = pos
     self.deltas.each do |delta|
-      new_pos = [i + delta[0], j + delta[1]]
+      new_pos = new_pos(delta)
       moves << new_pos if valid_move?(new_pos)
     end
 
@@ -121,9 +168,5 @@ class King < SteppingPiece
   def deltas
     DELTAS
   end
-
-end
-
-class Pawn < Piece
 
 end
