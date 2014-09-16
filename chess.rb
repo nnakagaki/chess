@@ -15,6 +15,10 @@ class Board
     add_pieces
   end
 
+  def [](pos)
+    grid[ pos[0] ][ pos[1] ]
+  end
+
   private
   def add_pieces
     grid.each_with_index do |row, index|
@@ -62,6 +66,9 @@ class Piece
       color: color
     }.inspect
   end
+
+  protected
+  attr_reader :board
 end
 
 class SlidingPiece < Piece
@@ -119,10 +126,11 @@ class SteppingPiece < Piece
     i, j = pos
     self.deltas.each do |delta|
       new_pos = [i + delta[0], j + delta[1]]
+      next unless new_pos.all? { |coord| coord.between?(0, 7) }
+      square = board[new_pos]
+      next unless square.nil? || square.color != self.color
 
-      if new_pos.all? { |coord| coord.between?(0, 7) }
-        moves << new_pos
-      end
+      moves << new_pos
     end
 
     moves
