@@ -1,8 +1,9 @@
 class Piece
+  attr_accessor :pos
   attr_reader :color
 
-  def initialize(board, color)
-    @board, @color = board, color
+  def initialize(pos, board, color)
+    @pos, @board, @color = board, color
   end
 
   def take_move
@@ -14,11 +15,6 @@ class Piece
       class: self.class,
       color: color
     }.inspect
-  end
-
-  protected
-  def pos
-
   end
 
   private
@@ -66,18 +62,18 @@ class Pawn < Piece
     moves
   end
 
-  def valid_move?(move_type, pos)
+  def valid_move?(move_type, new_pos)
     case move_type
     when :standard
-      return false if board[pos]
+      return false if board[new_pos]
     when :opening
-      return false if board[pos]
-      return false if self.pos[0] != pawn_row
+      return false if board[new_pos]
+      return false if pos[0] != pawn_row
 
       standard_pos = new_pos(deltas[:standard])
       return false if valid_move?(:standard, standard_pos)
     else
-      return false unless board[pos] && board[pos].color != self.color
+      return false unless board[new_pos] && board[new_pos].color != color
     end
 
     true
