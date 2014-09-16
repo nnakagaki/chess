@@ -25,7 +25,7 @@ class Piece
   end
 
   def other_color
-    color == :white ? :black : :white
+    color == :w ? :b : :w
   end
 
   def dup(new_board = board)
@@ -97,11 +97,11 @@ class Pawn < Piece
   end
 
   def deltas
-    color == :white ? WHITE_DELTAS : BLACK_DELTAS
+    color == :w ? WHITE_DELTAS : BLACK_DELTAS
   end
 
   def pawn_row
-    color == :white ? 6 : 1
+    color == :w ? 6 : 1
   end
 
 end
