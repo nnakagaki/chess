@@ -1,6 +1,9 @@
 # require_relative 'pieces.rb'
 load './pieces.rb'
 
+class CoordinateError < RuntimeError
+end
+
 class Board
   attr_reader :grid
 
@@ -15,7 +18,23 @@ class Board
 
   def initialize
     @grid = Board.make_board
-    add_pieces
+  end
+
+  def move(start_pos, end_pos)
+    piece = self[start_pos]
+    raise CoordinateError("No piece there!") unless piece
+    unless piece.non_check_moves.include?(end_pos)
+      raise CoordinateError("Can't move there!")
+    end
+
+    move!(start_pos, end_pos)
+  end
+
+  def move!(start_pos, end_pos)
+    piece = self[start_pos]
+    self[start_pos] = nil
+    self[end_pos] = piece
+    piece.pos = end_pos
   end
 
   def in_check?(color)
@@ -28,6 +47,24 @@ class Board
 
   def [](pos)
     grid[ pos[0] ][ pos[1] ]
+  end
+
+  def []=(pos, value)
+    grid[ pos[0] ][ pos[1] ] = value
+  end
+
+  def dup
+    new_board = Board.new
+    pieces.each do |piece|
+      new_piece = piece.dup(new_board)
+      new_board[new_piece.pos] = new_piece
+    end
+
+    new_board
+  end
+
+  def pieces
+    grid.flatten.compact
   end
 
   private
@@ -56,11 +93,11 @@ class Board
   end
 
   def pieces_for_color(color)
-    grid.flatten.select { |piece| piece.color == color }
+    pieces.select { |piece| piece.color == color }
   end
 
   def king_for_color(color)
-    grid.flatten.select do |piece|
+    pieces.select do |piece|
       piece.color == color && piece.is_a?(King)
     end.first
   end

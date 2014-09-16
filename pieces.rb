@@ -3,7 +3,7 @@ class Piece
   attr_reader :color
 
   def initialize(pos, board, color)
-    @pos, @board, @color = board, color
+    @pos, @board, @color = pos, board, color
   end
 
   def take_move
@@ -13,12 +13,27 @@ class Piece
   def inspect
     {
       class: self.class,
+      pos: pos,
       color: color
     }.inspect
   end
 
+  def move_into_check?(pos)
+    test_board = board.dup
+    test_board.move!(self.pos, pos)
+    test_board.in_check?(color)
+  end
+
   def other_color
     color == :white ? :black : :white
+  end
+
+  def dup(new_board = board)
+    self.class.new(pos.dup, new_board, color)
+  end
+
+  def non_check_moves
+    self.moves.reject { |move| move_into_check?(move) }
   end
 
   private
@@ -26,7 +41,6 @@ class Piece
 
   def valid_move?(pos)
     return false unless pos.all? { |coord| coord.between?(0, 7) }
-
     unless board[pos].nil?
       return false if board[pos].color == self.color
     end
@@ -66,18 +80,17 @@ class Pawn < Piece
     moves
   end
 
-  def valid_move?(move_type, new_pos)
+  def valid_move?(move_type, pos)
     case move_type
     when :standard
-      return false if board[new_pos]
+      return false if board[pos]
     when :opening
-      return false if board[new_pos]
-      return false if pos[0] != pawn_row
-
-      standard_pos = new_pos(deltas[:standard])
+      return false if board[pos]
+      return false if self.pos[0] != pawn_row
+      standard_pos = pos(deltas[:standard])
       return false if valid_move?(:standard, standard_pos)
     else
-      return false unless board[new_pos] && board[new_pos].color != color
+      return false unless board[pos] && board[pos].color != color
     end
 
     true
