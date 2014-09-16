@@ -18,6 +18,14 @@ class Board
     add_pieces
   end
 
+  def in_check?(color)
+    king = king_for_color(color)
+
+    pieces_for_color(king.other_color).any? do |piece|
+      piece.moves.include?(king.pos)
+    end
+  end
+
   def [](pos)
     grid[ pos[0] ][ pos[1] ]
   end
@@ -45,6 +53,16 @@ class Board
     8.times do |index|
       row[index] = Pawn.new(self, color)
     end
+  end
+
+  def pieces_for_color(color)
+    grid.flatten.select { |piece| piece.color == color }
+  end
+
+  def king_for_color(color)
+    grid.flatten.select do |piece|
+      piece.color == color && piece.is_a?(King)
+    end.first
   end
 
 end

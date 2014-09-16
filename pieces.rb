@@ -17,6 +17,10 @@ class Piece
     }.inspect
   end
 
+  def other_color
+    color == :white ? :black : :white
+  end
+
   private
   attr_reader :board
 
