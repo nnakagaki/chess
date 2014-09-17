@@ -43,6 +43,10 @@ class Piece
     true
   end
 
+  def moves
+    moves!
+  end
+
   def new_pos(dir, mag = 1)
     i, j = pos
     delta_i, delta_j = dir[0] * mag, dir[1] * mag

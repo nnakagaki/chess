@@ -2,7 +2,7 @@ class SlidingPiece < Piece
   DIAGONALS = [ [1, 1], [-1, -1], [1, -1], [-1, 1] ]
   ORTHOGONALS = [ [1, 0], [-1, 0], [0, -1], [0, 1] ]
 
-  def moves
+  def moves!
     moves = []
 
     self.directions.each do |dir|

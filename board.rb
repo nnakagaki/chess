@@ -53,7 +53,7 @@ class Board
     king = king_for_color(color)
 
     pieces_for_color(king.other_color).any? do |piece|
-      piece.moves.include?(king.pos)
+      piece.moves!.include?(king.pos)
     end
   end
 
@@ -88,6 +88,10 @@ class Board
     last_mover.is_a?(Pawn) && last_mover.at_back_row?
   end
 
+  def piece_has_moved?(pos)
+    moves.any? { |move| move[0] == pos }
+  end
+
   def [](pos)
     grid[ pos[0] ][ pos[1] ]
   end
@@ -118,11 +122,8 @@ class Board
 
   def add_pieces
     set_back_rows
-    set_pawn_rows
-    # self[[1, 3]] = Pawn.new([1, 3], self, :w)
-    # self[[5, 3]] = Pawn.new([5, 3], self, :b)
-    # self[[1, 6]] = King.new([1, 6], self, :w)
-    # self[[6, 6]] = King.new([6, 6], self, :b)
+    # set_pawn_rows
+    set_king_rooks
   end
 
   def upgrade_pawn(choice)
@@ -183,6 +184,15 @@ class Board
       8.times do |col|
         pos = [row, col]
         self[pos] = Pawn.new(pos, self, color)
+      end
+    end
+  end
+
+  def set_king_rooks
+    [:w, :b].each do |color|
+      king = king_for_color(color)
+      king.rooks.each do |start_pos, value|
+        king.rooks[start_pos] = self[start_pos]
       end
     end
   end

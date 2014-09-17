@@ -13,7 +13,7 @@ class Pawn < Piece
     taking_right: [-1, 1]
   }
 
-  def moves
+  def moves!
     moves = []
 
     deltas.each do |move_type, delta|
