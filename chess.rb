@@ -4,7 +4,7 @@ require 'colorize'
 class Chess
   COLORS = [:w, :b]
 
-  attr_reader :board
+  attr_reader :board, :players
 
   def initialize(white, black)
     @players = {w: white, b: black}
@@ -16,9 +16,14 @@ class Chess
     @start_time = Time.now
     @color = :w
     until board.over?(@color)
-      puts "#{board.object_id}"
       board.draw
       take_move
+      if board.pawn_to_back_row?
+        board.draw
+        choice = players[@color].get_pawn_choice(@color)
+        board.upgrade_pawn(choice)
+      end
+
       @color = (@color == :w ? :b : :w)
     end
 
@@ -102,6 +107,20 @@ class HumanPlayer
     input.split.map do |pos_str|
       pos_str.reverse.chars.map { |char| ASSIGNMENTS[char] }
     end
+  end
+
+  def get_pawn_choice(color)
+    message =
+      "Which piece would you like to upgrade your pawn to (q, r, b, k)"
+    error_message =
+      "Choose a letter (q - queen, r - rook, b - bishop, k - knight)"
+    choice = prompt(message, error_message) do |input|
+      input.upcase =~ /^[QRBK]$/
+    end.upcase
+
+    choices = { ?Q => Queen, ?R => Rook, ?B => Bishop, ?K => Knight }
+
+    choices[choice]
   end
 
   def prompt(message, error_message, &prc)

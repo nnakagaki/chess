@@ -23,7 +23,7 @@ class Board
   end
 
   def initialize
-    @grid, @moves = Board.make_board, []
+    @grid, @moves, @prev_grids = Board.make_board, [], []
   end
 
   def move(color, start_pos, end_pos)
@@ -46,22 +46,7 @@ class Board
     piece.pos = end_pos
 
     moves << [start_pos, end_pos]
-  end
-
-
-  def en_passant?(start_pos, end_pos)
-    current_piece = self[start_pos]
-    return false unless [current_piece, last_mover].all? do |piece|
-      piece.is_a?(Pawn)
-    end
-    puts "what!?"
-    return false unless last_mover.en_passant_eligible?
-
-    start_pos[0] == last_mover.pos[0] && end_pos[1] == last_mover.pos[1]
-  end
-
-  def en_passant_take
-    self[moves.last.last] = nil
+    @prev_grids << self.symbol_grid
   end
 
   def in_check?(color)
@@ -86,11 +71,21 @@ class Board
   end
 
   def stalemate?(color)
-    return false if in_check?(color)
+    return false if moves.count < 6 || in_check?(color)
+
+    board_freq = Hash.new(0)
+    return true if @prev_grids.any? do |past_grid|
+      board_freq[past_grid] += 1
+      board_freq[past_grid] > 2
+    end
 
     pieces_for_color(color).all? do |piece|
       piece.non_check_moves.empty?
     end
+  end
+
+  def pawn_to_back_row?
+    last_mover.is_a?(Pawn) && last_mover.at_back_row?
   end
 
   def [](pos)
@@ -124,6 +119,16 @@ class Board
   def add_pieces
     set_back_rows
     set_pawn_rows
+    # self[[1, 3]] = Pawn.new([1, 3], self, :w)
+    # self[[5, 3]] = Pawn.new([5, 3], self, :b)
+    # self[[1, 6]] = King.new([1, 6], self, :w)
+    # self[[6, 6]] = King.new([6, 6], self, :b)
+  end
+
+  def upgrade_pawn(choice)
+    color = last_mover.color
+    pos = last_mover.pos
+    self[pos] = choice.new(pos, self, color)
   end
 
   def draw
@@ -133,7 +138,7 @@ class Board
       render += "     #{8 - i} | "
 
       row.each_with_index do |piece, j|
-        square = piece.class::SYMBOL ||= ' '
+        square = piece.class::ICON ||= ' '
         if piece
           square = piece.color == :w ? square.light_red : square.light_blue
         end
@@ -151,8 +156,15 @@ class Board
     puts render
   end
 
-  protected
+  # protected
   attr_writer :moves
+
+  def symbol_grid
+    grid.flatten.map do |piece|
+      next unless piece
+      (piece.class::ICON + piece.color.to_s).to_sym
+    end
+  end
 
   private
   def set_back_rows
@@ -185,4 +197,18 @@ class Board
     end.first
   end
 
+  # Pawn methods
+  def en_passant?(start_pos, end_pos)
+    current_piece = self[start_pos]
+    return false unless [current_piece, last_mover].all? do |piece|
+      piece.is_a?(Pawn)
+    end
+    return false unless last_mover.en_passant_eligible?
+
+    start_pos[0] == last_mover.pos[0] && end_pos[1] == last_mover.pos[1]
+  end
+
+  def en_passant_take
+    self[moves.last.last] = nil
+  end
 end
