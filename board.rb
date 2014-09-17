@@ -38,10 +38,30 @@ class Board
   end
 
   def move!(start_pos, end_pos)
+    en_passant_take if en_passant?(start_pos, end_pos)
+
     piece = self[start_pos]
     self[start_pos] = nil
     self[end_pos] = piece
     piece.pos = end_pos
+
+    moves << [start_pos, end_pos]
+  end
+
+
+  def en_passant?(start_pos, end_pos)
+    current_piece = self[start_pos]
+    return false unless [current_piece, last_mover].all? do |piece|
+      piece.is_a?(Pawn)
+    end
+    puts "what!?"
+    return false unless last_mover.en_passant_eligible?
+
+    start_pos[0] == last_mover.pos[0] && end_pos[1] == last_mover.pos[1]
+  end
+
+  def en_passant_take
+    self[moves.last.last] = nil
   end
 
   def in_check?(color)
@@ -52,8 +72,9 @@ class Board
     end
   end
 
-  def over?
-    [:w, :b].any? { |color| checkmate?(color) || stalemate?(color) }
+  def over?(color)
+    return false if moves.empty?
+    checkmate?(color) || stalemate?(color)
   end
 
   def checkmate?(color)
@@ -96,6 +117,7 @@ class Board
   end
 
   def last_mover
+    return nil if moves.empty?
     self[moves.last.last]
   end
 

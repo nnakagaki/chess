@@ -14,10 +14,12 @@ class Chess
 
   def play
     @start_time = Time.now
-    until board.over?
+    @color = :w
+    until board.over?(@color)
+      puts "#{board.object_id}"
       board.draw
-      @color = COLORS[board.moves.count % 2]
       take_move
+      @color = (@color == :w ? :b : :w)
     end
 
     recap
@@ -39,8 +41,6 @@ class Chess
       retry
     else
     end
-
-    board.moves << move
   end
 
   def recap
@@ -48,15 +48,15 @@ class Chess
     board.draw
 
     finalist = @color == :w ? :b : :w
-    if board.checkmate?(finalist)
-      win_message = "#{@players[@color].name} won in #{total_time} seconds!"
-      puts @color == :w ? win_message.red : win_message.blue
+    if board.checkmate?(@color)
+      win_message = "#{@players[finalist].name} won in #{total_time} seconds!"
+      puts finalist == :w ? win_message.red : win_message.blue
     else
       stale_message =
         "After #{total_time} seconds, #{@players[@color].name} and " +
         "#{@players[finalist].name} are locked in heated battle " +
-        "for all eternity...".red_on_black
-      puts stale_message
+        "for all eternity..."
+      puts stale_message.red
     end
   end
 end
