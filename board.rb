@@ -11,6 +11,7 @@ end
 
 class Board
   attr_reader :grid
+  attr_reader :moves
 
   PIECE_ORDER = [
     Rook, Knight, Bishop, Queen,
@@ -22,7 +23,7 @@ class Board
   end
 
   def initialize
-    @grid = Board.make_board
+    @grid, @moves = Board.make_board, []
   end
 
   def move(color, start_pos, end_pos)
@@ -81,6 +82,7 @@ class Board
 
   def dup
     new_board = Board.new
+    new_board.moves = self.moves.map(&:dup)
     pieces.each do |piece|
       new_piece = piece.dup(new_board)
       new_board[new_piece.pos] = new_piece
@@ -93,16 +95,13 @@ class Board
     grid.flatten.compact
   end
 
-  def add_pieces
-    grid.each_with_index do |row, index|
-      color = [0, 1].include?(index) ? :b : :w
+  def last_mover
+    self[moves.last.last]
+  end
 
-      if [0, 7].include?(index)
-        set_back_row(row, index, color)
-      elsif [1, 6].include?(index)
-        set_pawn_row(row, index, color)
-      end
-    end
+  def add_pieces
+    set_back_rows
+    set_pawn_rows
   end
 
   def draw
@@ -130,19 +129,27 @@ class Board
     puts render
   end
 
-  private
+  protected
+  attr_writer :moves
 
-  def set_back_row(row, row_index, color)
-    8.times do |index|
-      pos = [row_index, index]
-      row[index] = PIECE_ORDER[index].new(pos, self, color)
+  private
+  def set_back_rows
+    [:w, :b].each do |color|
+      row = color == :w ? 7 : 0
+      8.times do |col|
+        pos = [row, col]
+        self[pos] = PIECE_ORDER[col].new(pos, self, color)
+      end
     end
   end
 
-  def set_pawn_row(row, row_index, color)
-    8.times do |index|
-      pos = [row_index, index]
-      row[index] = Pawn.new(pos, self, color)
+  def set_pawn_rows
+    [:w, :b].each do |color|
+      row = color == :w ? 6 : 1
+      8.times do |col|
+        pos = [row, col]
+        self[pos] = Pawn.new(pos, self, color)
+      end
     end
   end
 

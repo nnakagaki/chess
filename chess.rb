@@ -14,10 +14,9 @@ class Chess
 
   def play
     @start_time = Time.now
-    @moves = []
     until board.over?
       board.draw
-      @color = COLORS[@moves.count % 2]
+      @color = COLORS[board.moves.count % 2]
       take_move
     end
 
@@ -41,7 +40,7 @@ class Chess
     else
     end
 
-    @moves << move
+    board.moves << move
   end
 
   def recap
