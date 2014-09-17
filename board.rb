@@ -34,6 +34,22 @@ class Board
       raise InvalidMoveError
     end
 
+    if piece.class == King && (start_pos[1] - end_pos[1]).abs == 2
+      a = start_pos[1] - end_pos[1] == 2 ? 0 : 1
+      b = piece.color == :w ? 10 : 20
+      p hash = { 10 => piece.rooks[[7,0]],
+                 11 => piece.rooks[[7,7]],
+                 20 => piece.rooks[[0,0]],
+                 21 => piece.rooks[[0,7]]
+               }
+
+      rook_end_pos = [start_pos[0], (start_pos[1] + end_pos[1]) / 2]
+      rook_piece = hash[a+b]
+      self[rook_end_pos] = rook_piece
+      self[rook_piece.pos] = nil
+      rook_piece.pos = rook_end_pos
+    end
+
     move!(start_pos, end_pos)
   end
 
