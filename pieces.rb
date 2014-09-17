@@ -102,6 +102,9 @@ class Pawn < Piece
 end
 
 class SlidingPiece < Piece
+  DIAGONALS = [ [1, 1], [-1, -1], [1, -1], [-1, 1] ]
+  ORTHOGONALS = [ [1, 0], [-1, 0], [0, -1], [0, 1] ]
+
   def moves
     moves = []
 
@@ -124,30 +127,20 @@ class SlidingPiece < Piece
 end
 
 class Bishop < SlidingPiece
-  DIRECTIONS = [ [1, 1], [-1, -1], [1, -1], [-1, 1] ]
-
   def directions
-    DIRECTIONS
+    DIAGONALS
   end
 end
 
 class Rook < SlidingPiece
-  DIRECTIONS = [ [1, 0], [-1, 0], [0, -1], [0, 1] ]
-
   def directions
-    DIRECTIONS
+    ORTHOGONALS
   end
 end
 
 class Queen < SlidingPiece
-  DIRECTIONS = [
-    [-1, -1], [-1, 0], [-1, 1],
-    [0, -1], [0, 1],
-    [1, -1], [1, 0], [1, 1]
-  ]
-
   def directions
-    DIRECTIONS
+    DIAGONALS + ORTHOGONALS
   end
 end
 
