@@ -105,6 +105,33 @@ class Board
     end
   end
 
+  def draw
+    render = ""
+
+    grid.each_with_index do |row, i|
+      render += "     #{8 - i} | "
+
+      row.each_with_index do |piece, j|
+        square = piece.class::SYMBOL ||= ' '
+        if piece
+          square = piece.color == :w ? square.light_red : square.light_blue
+        end
+        render += (i + j).even? ? " #{square} ".on_white : " #{square} "
+      end
+      render += "\n"
+    end
+
+    render += " " * 8 + "_" * 27 + "\n"
+    render += " " * 9
+    ('A'..'H').each { |letter| render += " #{letter} " }
+
+    system('clear')
+    puts "\n" * 8
+    puts render
+  end
+
+  private
+
   def set_back_row(row, row_index, color)
     8.times do |index|
       pos = [row_index, index]

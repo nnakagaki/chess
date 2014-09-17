@@ -3,27 +3,6 @@ require 'colorize'
 
 class Chess
   COLORS = [:w, :b]
-  LETTER_ASSN = {
-    'A' => 0,
-    'B' => 1,
-    'C' => 2,
-    'D' => 3,
-    'E' => 4,
-    'F' => 5,
-    'G' => 6,
-    'H' => 7,
-  }
-  NUMBER_ASSN = {
-    '1' => 7,
-    '2' => 6,
-    '3' => 5,
-    '4' => 4,
-    '5' => 3,
-    '6' => 2,
-    '7' => 1,
-    '8' => 0
-  }
-  ASSIGNMENTS = LETTER_ASSN.merge(NUMBER_ASSN)
 
   attr_reader :board
 
@@ -37,7 +16,7 @@ class Chess
     @start_time = Time.now
     @moves = []
     until board.over?
-      draw
+      board.draw
       @color = COLORS[@moves.count % 2]
       take_move
     end
@@ -67,7 +46,7 @@ class Chess
 
   def recap
     total_time = Time.now - @start_time
-    draw
+    board.draw
 
     finalist = @color == :w ? :b : :w
     if board.checkmate?(finalist)
@@ -81,36 +60,28 @@ class Chess
       puts stale_message
     end
   end
-
-  def draw
-    render = ""
-
-    board.grid.each_with_index do |row, i|
-      row_ref = NUMBER_ASSN.find { |ref, index| index == i }.first
-      render += "     #{row_ref} | "
-
-      row.each_with_index do |piece, j|
-        square = piece.class::SYMBOL ||= ' '
-        if piece
-          square = piece.color == :w ? square.light_red : square.light_blue
-        end
-        render += (i + j).even? ? " #{square} ".on_white : " #{square} "
-      end
-      render += "\n"
-    end
-
-    render += " " * 8 + "_" * 27 + "\n"
-    render += " " * 9
-    ('A'..'H').each { |letter| render += " #{letter} " }
-
-    system('clear')
-    puts "\n" * 8
-    puts render
-  end
-
 end
 
 class HumanPlayer
+  ASSIGNMENTS = {
+    'A' => 0,
+    'B' => 1,
+    'C' => 2,
+    'D' => 3,
+    'E' => 4,
+    'F' => 5,
+    'G' => 6,
+    'H' => 7,
+    '1' => 7,
+    '2' => 6,
+    '3' => 5,
+    '4' => 4,
+    '5' => 3,
+    '6' => 2,
+    '7' => 1,
+    '8' => 0
+  }
+
   attr_reader :name
 
   def initialize(name = 'player')
@@ -130,7 +101,7 @@ class HumanPlayer
 
   def parse_move_input(input)
     input.split.map do |pos_str|
-      pos_str.reverse.chars.map { |char| Chess::ASSIGNMENTS[char] }
+      pos_str.reverse.chars.map { |char| ASSIGNMENTS[char] }
     end
   end
 
