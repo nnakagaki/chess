@@ -3,14 +3,6 @@ require 'colorize'
 
 class Chess
   COLORS = [:w, :b]
-  SYMBOLS = {
-    King => "\u{265A}",
-    Queen => "\u{265B}",
-    Rook => "\u{265C}",
-    Bishop => "\u{265D}",
-    Knight => "\u{265E}",
-    Pawn => "\u{265F}",
-  }
   LETTER_ASSN = {
     'A' => 0,
     'B' => 1,
@@ -98,7 +90,7 @@ class Chess
       render += "     #{row_ref} | "
 
       row.each_with_index do |piece, j|
-        square = SYMBOLS[piece.class] ||= ' '
+        square = piece.class::SYMBOL ||= ' '
         if piece
           square = piece.color == :w ? square.light_red : square.light_blue
         end

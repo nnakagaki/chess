@@ -51,6 +51,7 @@ class Piece
 end
 
 class Pawn < Piece
+  SYMBOL = "♟"
   BLACK_DELTAS = {
     standard: [1, 0],
     opening: [2, 0],
@@ -127,18 +128,24 @@ class SlidingPiece < Piece
 end
 
 class Bishop < SlidingPiece
+  SYMBOL = "♝"
+
   def directions
     DIAGONALS
   end
 end
 
 class Rook < SlidingPiece
+  SYMBOL = "♜"
+
   def directions
     ORTHOGONALS
   end
 end
 
 class Queen < SlidingPiece
+  SYMBOL = "♛"
+
   def directions
     DIAGONALS + ORTHOGONALS
   end
@@ -158,6 +165,8 @@ class SteppingPiece < Piece
 end
 
 class Knight < SteppingPiece
+  SYMBOL = "♞"
+
   DELTAS = [
     [1, 2], [1, -2], [2, 1], [2, -1],
     [-1, 2], [-1, -2], [-2, 1], [-2, -1]
@@ -170,6 +179,7 @@ class Knight < SteppingPiece
 end
 
 class King < SteppingPiece
+  SYMBOL = "♚"
   DELTAS = [
     [-1, -1], [-1, 0], [-1, 1],
     [0, -1], [0, 1],
