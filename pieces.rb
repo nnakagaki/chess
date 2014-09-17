@@ -6,10 +6,6 @@ class Piece
     @pos, @board, @color = pos, board, color
   end
 
-  def take_move
-
-  end
-
   def inspect
     {
       class: self.class,
@@ -36,7 +32,6 @@ class Piece
     self.moves.reject { |move| move_into_check?(move) }
   end
 
-  private
   attr_reader :board
 
   def valid_move?(pos)
@@ -73,8 +68,8 @@ class Pawn < Piece
     moves = []
 
     deltas.each do |move_type, delta|
-      new_pos = new_pos(delta)
-      moves << new_pos if valid_move?(move_type, new_pos)
+      new_pos = self.new_pos(delta)
+      moves << new_pos if self.valid_move?(move_type, new_pos)
     end
 
     moves
@@ -87,8 +82,8 @@ class Pawn < Piece
     when :opening
       return false if board[pos]
       return false if self.pos[0] != pawn_row
-      standard_pos = pos(deltas[:standard])
-      return false if valid_move?(:standard, standard_pos)
+      standard_pos = new_pos(deltas[:standard])
+      return false unless self.valid_move?(:standard, standard_pos)
     else
       return false unless board[pos] && board[pos].color != color
     end

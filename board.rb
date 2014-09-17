@@ -1,6 +1,12 @@
 load './pieces.rb'
 
-class CoordinateError < RuntimeError
+class NoPieceError < RuntimeError
+end
+
+class InvalidMoveError < RuntimeError
+end
+
+class PlayerError < RuntimeError
 end
 
 class Board
@@ -19,11 +25,12 @@ class Board
     @grid = Board.make_board
   end
 
-  def move(start_pos, end_pos)
+  def move(color, start_pos, end_pos)
     piece = self[start_pos]
-    raise CoordinateError("No piece there!") unless piece
+    raise NoPieceError unless piece
+    raise PlayerError if piece.color != color
     unless piece.non_check_moves.include?(end_pos)
-      raise CoordinateError("Can't move there!")
+      raise InvalidMoveError
     end
 
     move!(start_pos, end_pos)
@@ -98,16 +105,17 @@ class Board
     end
   end
 
-  private
   def set_back_row(row, row_index, color)
     8.times do |index|
-      row[index] = PIECE_ORDER[index].new(self, color)
+      pos = [row_index, index]
+      row[index] = PIECE_ORDER[index].new(pos, self, color)
     end
   end
 
   def set_pawn_row(row, row_index, color)
     8.times do |index|
-      row[index] = Pawn.new(self, color)
+      pos = [row_index, index]
+      row[index] = Pawn.new(pos, self, color)
     end
   end
 
