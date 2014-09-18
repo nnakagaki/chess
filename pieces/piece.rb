@@ -43,6 +43,8 @@ class Piece
     true
   end
 
+  # Mask avoids recursive call when this method's return is contingent on
+  # the Board#in_check? method's return
   def moves
     moves!
   end

@@ -22,27 +22,3 @@ class SlidingPiece < Piece
     moves
   end
 end
-
-class Bishop < SlidingPiece
-  ICON = ?♝
-
-  def directions
-    DIAGONALS
-  end
-end
-
-class Rook < SlidingPiece
-  ICON = ?♜
-
-  def directions
-    ORTHOGONALS
-  end
-end
-
-class Queen < SlidingPiece
-  ICON = ?♛
-
-  def directions
-    DIAGONALS + ORTHOGONALS
-  end
-end
