@@ -26,8 +26,9 @@ class Pawn < Piece
   end
 
   def en_passant_eligible?
-    return false unless self == board.last_mover
-    start_pos, end_pos = board.moves.last
+    return false unless self == board.checker.last_mover
+
+    start_pos, end_pos = board.checker.moves.last
     (start_pos[0] - end_pos[0]).abs == 2
   end
 

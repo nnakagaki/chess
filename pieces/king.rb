@@ -21,16 +21,14 @@ class King < SteppingPiece
     DELTAS
   end
 
-  def moves!
-    super
-  end
-
   def moves
-    super + castling_moves
+    moves! + castling_moves
   end
 
   def castling_moves
-    return [] if board.in_check?(color) || board.piece_has_moved?(pos)
+    if board.checker.in_check?(color) || board.checker.piece_has_moved?(pos)
+      return []
+    end
 
     castling_moves = []
     rooks.each do |start_pos, rook|
@@ -48,7 +46,7 @@ class King < SteppingPiece
 
   def rook_can_castle?(start_pos, rook)
     return false unless board[start_pos] == rook
-    return false if board.piece_has_moved?(start_pos)
+    return false if board.checker.piece_has_moved?(start_pos)
     return false if pieces_between?(rook)
     true
   end

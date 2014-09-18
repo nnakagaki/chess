@@ -4,7 +4,6 @@ class SlidingPiece < Piece
 
   def moves!
     moves = []
-
     self.directions.each do |dir|
       8.times do |mag|
         next if mag.zero?

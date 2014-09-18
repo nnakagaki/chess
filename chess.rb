@@ -18,12 +18,11 @@ class Chess
   end
 
   protected
-  # Protected so load_file can re-initiate the run loop
   def run
-    until board.over?(color)
+    until board.checker.over?(color)
       board.draw
       take_move
-      if board.pawn_to_back_row?
+      if board.checker.pawn_to_back_row?
         board.draw
         choice = players[color].get_pawn_choice(color)
         board.upgrade_pawn(choice)
@@ -101,7 +100,7 @@ class Chess
     board.draw
 
     finalist = color == :w ? :b : :w
-    if board.checkmate?(color)
+    if board.checker.checkmate?(color)
       win_message = "#{players[finalist].name} won in #{total_time} seconds!"
       puts finalist == :w ? win_message.red : win_message.blue
     else
