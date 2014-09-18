@@ -1,54 +1,51 @@
 class HumanPlayer
   ASSIGNMENTS = {
-    'A' => 0,
-    'B' => 1,
-    'C' => 2,
-    'D' => 3,
-    'E' => 4,
-    'F' => 5,
-    'G' => 6,
-    'H' => 7,
-    '1' => 7,
-    '2' => 6,
-    '3' => 5,
-    '4' => 4,
-    '5' => 3,
-    '6' => 2,
-    '7' => 1,
-    '8' => 0
+    ?a => 0,
+    ?b => 1,
+    ?c => 2,
+    ?d => 3,
+    ?e => 4,
+    ?f => 5,
+    ?g => 6,
+    ?h => 7,
+    ?1 => 7,
+    ?2 => 6,
+    ?3 => 5,
+    ?4 => 4,
+    ?5 => 3,
+    ?6 => 2,
+    ?7 => 1,
+    ?8 => 0
   }
 
   attr_reader :name
 
-  def initialize(color = :temp)
-    if color == :temp
-      @name = ""
-    else
-      @name = get_name(color)
-    end
+  def get_main_menu_input
+    message = ""
+    error_message = "No such command, try again (n or l)"
+    move_selection = prompt(message, error_message) do |input|
+      input.downcase =~ /^[nl]$/
+    end.downcase
+
+    move_selection == ?n ? :new_game : :load_game
   end
 
+
   def get_name(color)
-    player_color = color == :w ? "White (Red)" : "Black (Blue)"
-    puts "\n"
-    puts "  What is your name, #{player_color} Player!"
-    print "  "
-    gets.chomp
+    color_text = color == :w ? "White (Red)" : "Black (Blue)"
+    message = "What is your name, #{color_text} Player?"
+    @name = prompt(message)
   end
 
   def get_move_input(color)
-    message = "\n  #{name}, enter your move (eg. 'A1 A3')"
+    message = "\n#{name}, enter your move (eg. 'A1 A3')"
     error_message = "Incorrect format, try again (eg. 'A3 A1')"
     message = color == :w ? message.red : message.blue
     move_selection = prompt(message, error_message) do |input|
-      input.upcase =~ /(^[A-H][1-8]\s[A-H][1-8]$)|(^[S]$)/
-    end.upcase
+      input.downcase =~ /(^[a-h][1-8]\s[a-h][1-8]$)|(^s$)/
+    end.downcase
 
-    if move_selection == "S"
-      move_selection
-    else
-      parse_move_input(move_selection)
-    end
+    move_selection == ?s ? :saving : parse_move_input(move_selection)
   end
 
   def parse_move_input(input)
@@ -59,27 +56,23 @@ class HumanPlayer
 
   def get_pawn_choice(color)
     message =
-      "Which piece would you like to upgrade your pawn to (q, r, b, k)"
+      "Which piece would you like to upgrade your pawn to? (q, r, b, k)"
     error_message =
-      "Choose a letter (q - queen, r - rook, b - bishop, k - knight)"
+      "Enter a letter (q - queen, r - rook, b - bishop, k - knight)"
     choice = prompt(message, error_message) do |input|
-      input.upcase =~ /^[QRBK]$/
-    end.upcase
+      input.downcase =~ /^[qrbk]$/
+    end.downcase
 
-    choices = { ?Q => Queen, ?R => Rook, ?B => Bishop, ?K => Knight }
+    choices = { ?q => Queen, ?r => Rook, ?b => Bishop, ?k => Knight }
 
     choices[choice]
   end
 
-  def get_main_menu_input
-    message = ""
-    error_message = "No such command, try again (n or l)"
-    move_selection = prompt(message, error_message) do |input|
-      input.downcase =~ /^[nl]$/
-    end.downcase
-  end
+  private
+  def prompt(message, error_message = nil, &prc)
+    error_message ||= message
+    prc ||= Proc.new { true }
 
-  def prompt(message, error_message, &prc)
     print "#{message} "
     begin
       input = gets.chomp
