@@ -138,7 +138,7 @@ class Board
 
   def add_pieces
     set_back_rows
-    # set_pawn_rows
+    set_pawn_rows
     set_king_rooks
   end
 
@@ -152,7 +152,7 @@ class Board
     render = ""
 
     grid.each_with_index do |row, i|
-      render += "     #{8 - i} | "
+      render += "     #{8 - i} ║ "
 
       row.each_with_index do |piece, j|
         square = piece.class::ICON ||= ' '
@@ -161,10 +161,11 @@ class Board
         end
         render += (i + j).even? ? " #{square} ".on_white : " #{square} "
       end
-      render += "\n"
+      render += " " + "║" + "\n"
     end
 
-    render += " " * 8 + "_" * 27 + "\n"
+    render += " " * 7 + "╚" + "═" * 26 + "╝" + "\n"
+    render = " " * 7 + "╔" + "═" * 26 + "╗" + "\n" + render
     render += " " * 9
     ('A'..'H').each { |letter| render += " #{letter} " }
 

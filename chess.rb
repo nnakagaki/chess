@@ -1,20 +1,58 @@
 load './board.rb'
 require 'colorize'
+require 'yaml'
 
 class Chess
   COLORS = [:w, :b]
 
   attr_reader :board, :players
 
-  def initialize(white, black)
+  def initialize
+    main_menu
+    @players = {}
+  end
+
+  def main_menu
+    puts "\n" * 5
+    indent = 10
+    puts " " * indent + "     WELCOME."
+    puts " " * indent + "        TO"
+    puts " " * indent + "THE WORLD OF CHESS!"
+    puts "\n" * 2
+
+    puts " " * (indent+2) + "n => New Game"
+    puts " " * (indent+2) + "l => Load"
+    puts "\n" * 2
+    print " " * (indent+5)
+
+    temp_player = HumanPlayer.new
+    input = temp_player.get_main_menu_input
+
+    play if input == ?n
+    load_file if input == ?l
+  end
+
+  def get_players
+    white = HumanPlayer.new(:w)
+    black = HumanPlayer.new(:b)
     @players = {w: white, b: black}
-    @board = Board.new
-    board.add_pieces
   end
 
   def play
+    @board = Board.new
+    board.add_pieces
+    board.draw
+
+    get_players
+
     @start_time = Time.now
     @color = :w
+
+    run
+
+  end
+
+  def run
     until board.over?(@color)
       board.draw
       take_move
@@ -32,9 +70,15 @@ class Chess
 
   def take_move
     move = nil
+    puts move
     begin
       move = @players[@color].get_move_input(@color)
-      board.move(@color, *move)
+      if move == 'S'
+        save_file
+        take_move
+      else
+        board.move(@color, *move)
+      end
     rescue NoPieceError
       puts "There's no piece there!"
       retry
@@ -64,6 +108,23 @@ class Chess
       puts stale_message.red
     end
   end
+
+  def save_file
+    puts "What would you like to name your save file?"
+    filename = gets.chomp + ".yml"
+    File.write(filename, YAML.dump(self))
+  end
+
+  def load_file
+    puts "What is the name of your save file?"
+    filename = gets.chomp
+    begin
+      YAML.load_file(filename).run
+    rescue
+      puts "That file doesn't exist; try again!"
+    end
+  end
+
 end
 
 class HumanPlayer
@@ -88,19 +149,35 @@ class HumanPlayer
 
   attr_reader :name
 
-  def initialize(name = 'player')
-    @name = name
+  def initialize(color = :temp)
+    if color == :temp
+      @name = ""
+    else
+      @name = get_name(color)
+    end
+  end
+
+  def get_name(color)
+    player_color = color == :w ? "White (Red)" : "Black (Blue)"
+    puts "\n"
+    puts "  What is your name, #{player_color} Player!"
+    print "  "
+    gets.chomp
   end
 
   def get_move_input(color)
-    message = "#{name}, enter your move (eg. 'A1 A3')"
+    message = "\n  #{name}, enter your move (eg. 'A1 A3')"
     error_message = "Incorrect format, try again (eg. 'A3 A1')"
     message = color == :w ? message.red : message.blue
     move_selection = prompt(message, error_message) do |input|
-      input.upcase =~ /^[A-H][1-8]\s[A-H][1-8]$/
+      input.upcase =~ /(^[A-H][1-8]\s[A-H][1-8]$)|(^[S]$)/
     end.upcase
 
-    parse_move_input(move_selection)
+    if move_selection == "S"
+      move_selection
+    else
+      parse_move_input(move_selection)
+    end
   end
 
   def parse_move_input(input)
@@ -123,6 +200,14 @@ class HumanPlayer
     choices[choice]
   end
 
+  def get_main_menu_input
+    message = ""
+    error_message = "No such command, try again (n or l)"
+    move_selection = prompt(message, error_message) do |input|
+      input.downcase =~ /^[nl]$/
+    end.downcase
+  end
+
   def prompt(message, error_message, &prc)
     print "#{message} "
     begin
@@ -138,7 +223,6 @@ class HumanPlayer
 end
 
 if __FILE__ == $PROGRAM_NAME
-  player1 = HumanPlayer.new("Red")
-  player2 = HumanPlayer.new("Blue")
-  Chess.new(player1, player2).play
+  system('clear')
+  Chess.new
 end
