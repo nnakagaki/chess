@@ -18,12 +18,12 @@ class Board
     King, Bishop, Knight, Rook
   ]
 
-  def self.make_board
+  def self.make_grid
     Array.new(8) { Array.new(8) }
   end
 
   def initialize
-    @grid, @moves, @prev_grids = Board.make_board, [], []
+    @grid, @moves, @prev_grids = Board.make_grid, [], []
   end
 
   def move(color, start_pos, end_pos)
@@ -34,35 +34,23 @@ class Board
       raise InvalidMoveError
     end
 
-    if piece.class == King && (start_pos[1] - end_pos[1]).abs == 2
-      a = start_pos[1] - end_pos[1] == 2 ? 0 : 1
-      b = piece.color == :w ? 10 : 20
-      p hash = { 10 => piece.rooks[[7,0]],
-                 11 => piece.rooks[[7,7]],
-                 20 => piece.rooks[[0,0]],
-                 21 => piece.rooks[[0,7]]
-               }
-
-      rook_end_pos = [start_pos[0], (start_pos[1] + end_pos[1]) / 2]
-      rook_piece = hash[a+b]
-      self[rook_end_pos] = rook_piece
-      self[rook_piece.pos] = nil
-      rook_piece.pos = rook_end_pos
-    end
-
     move!(start_pos, end_pos)
   end
 
+  # Allows moving without error checks for creating hypothetical boards
   def move!(start_pos, end_pos)
-    en_passant_take if en_passant?(start_pos, end_pos)
-
+    handle_special_moves(start_pos, end_pos)
     piece = self[start_pos]
-    self[start_pos] = nil
-    self[end_pos] = piece
-    piece.pos = end_pos
+    update_piece_position(piece, start_pos, end_pos)
 
     moves << [start_pos, end_pos]
     @prev_grids << self.symbol_grid
+  end
+
+  def update_piece_position(piece, start_pos, end_pos)
+    self[start_pos] = nil
+    self[end_pos] = piece
+    piece.pos = end_pos
   end
 
   def in_check?(color)
@@ -224,7 +212,11 @@ class Board
     end.first
   end
 
-  # Pawn methods
+  def handle_special_moves(start_pos, end_pos)
+    en_passant_take if en_passant?(start_pos, end_pos)
+    castling_rook_move(start_pos, end_pos) if castling?(start_pos, end_pos)
+  end
+
   def en_passant?(start_pos, end_pos)
     current_piece = self[start_pos]
     return false unless [current_piece, last_mover].all? do |piece|
@@ -238,4 +230,20 @@ class Board
   def en_passant_take
     self[moves.last.last] = nil
   end
+
+  def castling?(start_pos, end_pos)
+    self[start_pos].class == King && (start_pos[1] - end_pos[1]).abs == 2
+  end
+
+  def castling_rook_move(start_pos, end_pos)
+    row = start_pos[0]
+    col = end_pos[1] == 2 ? 0 : 7
+    from_pos = [row, col]
+    rook = self[from_pos]
+
+    to_col = col == 0 ? 3 : 5
+    to_pos = [row, to_col]
+    update_piece_position(rook, from_col, to_col)
+  end
+
 end
