@@ -45,20 +45,6 @@ class Chess
     load_file if menu_choice == :load_game
   end
 
-  def draw_menu
-    puts "\n" * 5
-    indent = 10
-    puts " " * indent + "     WELCOME."
-    puts " " * indent + "        TO"
-    puts " " * indent + "THE WORLD OF CHESS!"
-    puts "\n" * 2
-
-    puts " " * (indent + 2) + "n => New Game"
-    puts " " * (indent + 2) + "l => Load"
-    puts "\n" * 2
-    print " " * (indent + 5)
-  end
-
   def play
     @board = Board.new
     board.add_pieces
@@ -96,6 +82,20 @@ class Chess
     end
   end
 
+  def draw_menu
+    puts "\n" * 5
+    indent = 10
+    puts " " * indent + "     WELCOME."
+    puts " " * indent + "        TO"
+    puts " " * indent + "THE WORLD OF CHESS!"
+    puts "\n" * 2
+
+    puts " " * (indent + 2) + "n => New Game"
+    puts " " * (indent + 2) + "l => Load"
+    puts "\n" * 2
+    print " " * (indent + 5)
+  end
+
   def recap
     total_time = Time.now - @start_time
     board.draw
@@ -114,22 +114,22 @@ class Chess
   end
 
   def save_file
-    puts "What would you like to name your save file?"
-    filename = gets.chomp + ".yml"
+    filename = players[color].get_save_filename
     File.write(filename, YAML.dump(self))
   end
 
   def load_file
-    puts "What is the name of your save file?"
-    filename = gets.chomp
     begin
+      filename = players.values.sample.get_saved_game
       YAML.load_file(filename).run
     rescue Errno::ENOENT
       puts "That file doesn't exist; try again!"
+      retry
     end
   end
 
 end
+
 
 if __FILE__ == $PROGRAM_NAME
   system('clear')

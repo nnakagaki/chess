@@ -68,6 +68,16 @@ class HumanPlayer
     choices[choice]
   end
 
+  def get_save_filename
+    message = "What would you like to name your save file?"
+    prompt(message) + '.yml'
+  end
+
+  def get_saved_game
+    message = "What is the name of your save file?"
+    prompt(message)
+  end
+
   private
   def prompt(message, error_message = nil, &prc)
     error_message ||= message
