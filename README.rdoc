@@ -1,0 +1,13 @@
+= Chess game in Ruby
+
+to run locally
+* <tt>gem install colorize</tt>
+* <tt>gem install chess-nnakagaki</tt>
+* <tt>a = HumanPlayer.new</tt>
+* <tt>b = HumanPlayer.new</tt>
+* <tt>c = Chess.new(a,b)</tt>
+* <tt>c.start</tt>
+
+== Features
+* Implements the minor rules such as castling and en-passant
+* Save/Load game files
